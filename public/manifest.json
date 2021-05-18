@@ -1,0 +1,9 @@
+{
+  "name": "COVID-APP-3",
+  "start_url": "/",
+  "icons": [],
+  "theme_color": "#EEEEEE",
+  "background_color": "#333333",
+  "display": "fullscreen",
+  "orientation": "potrait"
+}
