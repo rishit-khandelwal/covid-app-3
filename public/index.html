@@ -6,14 +6,76 @@
     <title>COVID3</title>
 
     <link rel="stylesheet" href="style.css" />
-    <script src="/vue.js"></script>
-    <script src="/chart.js"></script>
-    <script defer src="/main.js"></script>
+    <script src="https://unpkg.com/vue@3.0.11/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
   </head>
   <body>
     <div id="root">
-      <div class="latest">{{ latestConfirmed }}</div>
+      <div class="latest">
+        <div id="cases">
+          <span v-if="showNewCases">{{ latestConfirmed }}</span>
+          <span v-if="!showNewCases">{{ latestConfirmed }}</span>
+        </div>
+      </div>
     </div>
     <canvas id="chart"></canvas>
+
+    <script>
+      var chart;
+      const app = Vue.createApp({
+        data() {
+          return {
+            latestConfirmed: undefined,
+            totalConfirmedGrowthArray: undefined,
+            showNewCases: true,
+          };
+        },
+        methods: {
+          main(data) {
+            this.totalConfirmedGrowthArray = data.map((v) => v["Confirmed"]);
+            this.totalConfirmedGrowthArray = this.growthArray(
+              this.totalConfirmedGrowthArray
+            );
+            this.latestConfirmed =
+              data[data.length - 1]["Confirmed"] -
+              data[data.length - 2]["Confirmed"];
+
+            this.drawChart();
+          },
+          growthArray(arr) {
+            return arr.map((v, i, ar) => {
+              if (i == 0) {
+                return v;
+              }
+
+              return v - ar[i - 1];
+            });
+          },
+          drawChart() {
+            const canvas = document.getElementById("chart");
+            const canvasCtx = canvas.getContext("2d");
+
+            chart = new Chart(canvasCtx, {
+              type: "line",
+              data: {
+                labels: this.totalConfirmedGrowthArray.map((_, i) => i + 1),
+                datasets: [
+                  {
+                    label: "New Confirmed Cases",
+                    data: this.totalConfirmedGrowthArray,
+                    backgroundColor: ["rgba(0, 132, 255, 1)"],
+                  },
+                ],
+              },
+            });
+          },
+        },
+        mounted() {
+          fetch("https://api.covid19api.com/total/country/india")
+            .then((r) => r.json())
+            .then(this.main);
+        },
+      }).mount("#root");
+    </script>
   </body>
 </html>

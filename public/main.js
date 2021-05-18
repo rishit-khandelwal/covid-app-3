@@ -1,15 +1,20 @@
+var chart;
 const app = Vue.createApp({
   data() {
     return {
       latestConfirmed: undefined,
-      totalConfirmed: undefined,
+      totalConfirmedGrowthArray: undefined,
+      showNewCases: true,
     };
   },
   methods: {
     main(data) {
-      this.totalConfirmed = data.map((v) => v["Confirmed"]);
-      this.totalConfirmed = this.growthArray(this.totalConfirmed);
-      this.latestConfirmed = data[data.length - 1]["Confirmed"];
+      this.totalConfirmedGrowthArray = data.map((v) => v["Confirmed"]);
+      this.totalConfirmedGrowthArray = this.growthArray(
+        this.totalConfirmedGrowthArray
+      );
+      this.latestConfirmed =
+        data[data.length - 1]["Confirmed"] - data[data.length - 2]["Confirmed"];
 
       this.drawChart();
     },
@@ -26,22 +31,15 @@ const app = Vue.createApp({
       const canvas = document.getElementById("chart");
       const canvasCtx = canvas.getContext("2d");
 
-      // canvas.width = window.innerWidth;
-      // canvas.height = window.innerHeight;
-
-      // canvasCtx.moveTo(0, 0);
-      // canvasCtx.lineTo(canvas.width, canvas.height);
-      // canvasCtx.stroke();
-
-      new Chart(canvasCtx, {
+      chart = new Chart(canvasCtx, {
         type: "line",
         data: {
-          labels: this.totalConfirmed.map((_, i) => i + 1),
+          labels: this.totalConfirmedGrowthArray.map((_, i) => i + 1),
           datasets: [
             {
               label: "New Confirmed Cases",
-              data: this.totalConfirmed,
-              backgroundColor: ["rgba(255, 99, 132, 0.2)"],
+              data: this.totalConfirmedGrowthArray,
+              backgroundColor: ["rgba(0, 132, 255, 1)"],
             },
           ],
         },
