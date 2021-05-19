@@ -151,12 +151,10 @@
     <div id="loading"></div>
     <div id="root">
       <div class="latest">
-        <div id="cases">
-          <span v-if="showNewCases" @click="switchMode"
-            >{{ latestConfirmed }}</span
-          >
-          <span v-if="!showNewCases" @click="switchMode"
-            >lol {{ latestConfirmed }}</span
+        <div id="cases" @click="switchMode">
+          <span v-if="showNewCases">New Cases: {{ latestConfirmed }}</span>
+          <span v-if="!showNewCases"
+            >Total Confirmed: {{ totalConfirmed }}</span
           >
         </div>
       </div>
@@ -172,6 +170,7 @@
         data() {
           return {
             latestConfirmed: undefined,
+            totalConfirmedArray: undefined,
             totalConfirmedGrowthArray: undefined,
             totalConfirmedArray: undefined,
             showNewCases: true,
@@ -180,6 +179,8 @@
         methods: {
           main(data) {
             this.totalConfirmedArray = data.map((v) => v["Confirmed"]);
+            this.totalConfirmed =
+              this.totalConfirmedArray[this.totalConfirmedArray.length - 1];
             this.totalConfirmedGrowthArray = this.growthArray(
               this.totalConfirmedArray
             );
@@ -200,7 +201,9 @@
               return v - ar[i - 1];
             });
           },
-          switchMode() {},
+          switchMode() {
+            this.showNewCases = !this.showNewCases;
+          },
           drawChart() {
             const canvas = document.getElementById("chart");
             const canvasCtx = canvas.getContext("2d");
