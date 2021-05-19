@@ -148,7 +148,7 @@
     ></script>
   </head>
   <body>
-    <div id="loading"></div>
+    <div id="loading">loading</div>
     <div id="root">
       <div class="latest">
         <div id="cases" @click="switchMode">
@@ -203,25 +203,42 @@
           },
           switchMode() {
             this.showNewCases = !this.showNewCases;
+            this.drawChart();
           },
           drawChart() {
             const canvas = document.getElementById("chart");
             const canvasCtx = canvas.getContext("2d");
 
             // Draw a chart
-            chart = new Chart(canvasCtx, {
-              type: "line",
-              data: {
-                labels: this.totalConfirmedGrowthArray.map((_, i) => i + 1),
-                datasets: [
-                  {
-                    label: "New Confirmed Cases",
-                    data: this.totalConfirmedGrowthArray,
-                    backgroundColor: ["rgba(0, 132, 255, 1)"],
-                  },
-                ],
-              },
-            });
+            if (this.showNewCases) {
+              chart = new Chart(canvasCtx, {
+                type: "line",
+                data: {
+                  labels: this.totalConfirmedGrowthArray.map((_, i) => i + 1),
+                  datasets: [
+                    {
+                      label: "New Confirmed Cases",
+                      data: this.totalConfirmedGrowthArray,
+                      backgroundColor: ["rgba(0, 132, 255, 1)"],
+                    },
+                  ],
+                },
+              });
+            } else {
+              chart = new Chart(canvasCtx, {
+                type: "line",
+                data: {
+                  labels: this.totalConfirmedArray.map((_, i) => i + 1),
+                  datasets: [
+                    {
+                      label: "Total Confirmed Cases",
+                      data: this.totalConfirmedArray,
+                      backgroundColor: ["rgba(0, 132, 255, 1)"],
+                    },
+                  ],
+                },
+              });
+            }
           },
           done() {
             // stop loading element
@@ -253,6 +270,14 @@
           Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
       }
 
+      #root {
+        margin-top: 2vh;
+        margin-left: 5vw;
+        margin-right: 5vw;
+        background-color: #555;
+        border-radius: 15px;
+      }
+
       #root .latest {
         font-size: 3rem;
         font-weight: 100;
@@ -260,12 +285,16 @@
 
       #loading {
         display: block;
-        background-color: rgba(0, 132, 255, 1);
         width: 100vw;
         height: 100vh;
         animation-name: loading;
         animation-iteration-count: infinite;
         animation-duration: 2s;
+
+        text-transform: capitalize;
+        font-size: 3rem;
+        text-align: center;
+        font-weight: 200;
       }
 
       @keyframes loading {
