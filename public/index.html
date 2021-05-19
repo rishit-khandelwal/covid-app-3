@@ -148,11 +148,16 @@
     ></script>
   </head>
   <body>
+    <div id="loading"></div>
     <div id="root">
       <div class="latest">
         <div id="cases">
-          <span v-if="showNewCases">{{ latestConfirmed }}</span>
-          <span v-if="!showNewCases">{{ latestConfirmed }}</span>
+          <span v-if="showNewCases" @click="switchMode"
+            >{{ latestConfirmed }}</span
+          >
+          <span v-if="!showNewCases" @click="switchMode"
+            >lol {{ latestConfirmed }}</span
+          >
         </div>
       </div>
     </div>
@@ -168,20 +173,23 @@
           return {
             latestConfirmed: undefined,
             totalConfirmedGrowthArray: undefined,
+            totalConfirmedArray: undefined,
             showNewCases: true,
           };
         },
         methods: {
           main(data) {
-            this.totalConfirmedGrowthArray = data.map((v) => v["Confirmed"]);
+            this.totalConfirmedArray = data.map((v) => v["Confirmed"]);
             this.totalConfirmedGrowthArray = this.growthArray(
-              this.totalConfirmedGrowthArray
+              this.totalConfirmedArray
             );
             this.latestConfirmed =
               data[data.length - 1]["Confirmed"] -
               data[data.length - 2]["Confirmed"];
 
             this.drawChart();
+
+            this.done();
           },
           growthArray(arr) {
             return arr.map((v, i, ar) => {
@@ -192,10 +200,12 @@
               return v - ar[i - 1];
             });
           },
+          switchMode() {},
           drawChart() {
             const canvas = document.getElementById("chart");
             const canvasCtx = canvas.getContext("2d");
 
+            // Draw a chart
             chart = new Chart(canvasCtx, {
               type: "line",
               data: {
@@ -210,9 +220,15 @@
               },
             });
           },
+          done() {
+            // stop loading element
+
+            const loadingEl = document.getElementById("loading");
+            loadingEl.parentElement.removeChild(loadingEl);
+          },
         },
         mounted() {
-          fetch("https://api.covid19api.com/total/country/india")
+          fetch("https://api.covid19api.com/total/country/india", {})
             .then((r) => r.json())
             .then(this.main);
         },
@@ -237,6 +253,27 @@
       #root .latest {
         font-size: 3rem;
         font-weight: 100;
+      }
+
+      #loading {
+        display: block;
+        background-color: rgba(0, 132, 255, 1);
+        width: 100vw;
+        height: 100vh;
+        animation-name: loading;
+        animation-iteration-count: infinite;
+        animation-duration: 2s;
+      }
+
+      @keyframes loading {
+        from {
+          transform: translate(0px, 100vh);
+          background-color: rgba(0, 132, 255, 1);
+        }
+        to {
+          transform: translate(0px, 0px);
+          background-color: rgba(0, 132, 255, 0);
+        }
       }
     </style>
   </body>
